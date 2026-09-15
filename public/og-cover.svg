@@ -1,0 +1,216 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="FUNDGUARD · Suite institucional prop firms · Monitorea desafíos, alertas antes de límites, vincula MT5 / cTrader / APIs Cripto.">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#090706" />
+      <stop offset="45%" stop-color="#120e0a" />
+      <stop offset="100%" stop-color="#05040a" />
+    </linearGradient>
+
+    <radialGradient id="orb-gold" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e9ae30" stop-opacity="0.55" />
+      <stop offset="55%" stop-color="#c88718" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#c88718" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="orb-emerald" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.38" />
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="orb-fuchsia" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e879f9" stop-opacity="0.34" />
+      <stop offset="100%" stop-color="#e879f9" stop-opacity="0" />
+    </radialGradient>
+
+    <linearGradient id="gold3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffe39a" />
+      <stop offset="50%" stop-color="#e9ae30" />
+      <stop offset="100%" stop-color="#b8860b" />
+    </linearGradient>
+
+    <linearGradient id="goldsoft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffe39a" stop-opacity="0" />
+      <stop offset="50%" stop-color="#ffe39a" stop-opacity="1" />
+      <stop offset="100%" stop-color="#ffe39a" stop-opacity="0" />
+    </linearGradient>
+
+    <filter id="blur3xl" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="62" />
+    </filter>
+
+    <filter id="blurxl" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="28" />
+    </filter>
+
+    <filter id="glowgold" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="b" />
+      <feColorMatrix in="b" type="matrix" values="0 0 0 0 0.91  0 0 0 0 0.68  0 0 0 0 0.19  0 0 0 0.85 0" />
+    </filter>
+
+    <pattern id="grid" width="46" height="46" patternUnits="userSpaceOnUse">
+      <path d="M46 0H0V46" fill="none" stroke="#e9ae30" stroke-opacity="0.08" stroke-width="1" />
+    </pattern>
+
+    <linearGradient id="mask-fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000" stop-opacity="0" />
+      <stop offset="25%" stop-color="#000" stop-opacity="1" />
+      <stop offset="75%" stop-color="#000" stop-opacity="1" />
+      <stop offset="100%" stop-color="#000" stop-opacity="0" />
+    </linearGradient>
+    <mask id="gridMask"><rect x="0" y="0" width="1200" height="630" fill="url(#mask-fade)" /></mask>
+  </defs>
+
+  <!-- Background base -->
+  <rect x="0" y="0" width="1200" height="630" fill="url(#bg)" />
+
+  <!-- Grid fine mask fade -->
+  <g mask="url(#gridMask)" opacity="0.95">
+    <rect x="0" y="0" width="1200" height="630" fill="url(#grid)" />
+  </g>
+
+  <!-- Floating orbs blur -->
+  <g filter="url(#blur3xl)">
+    <circle cx="1040" cy="110" r="260" fill="url(#orb-gold)" />
+    <circle cx="140" cy="540" r="240" fill="url(#orb-emerald)" />
+    <circle cx="1080" cy="520" r="210" fill="url(#orb-fuchsia)" />
+  </g>
+
+  <!-- Soft shine sweep top -->
+  <rect x="-60" y="30" width="1320" height="1.2" fill="url(#goldsoft)" opacity="0.9" />
+  <rect x="-60" y="600" width="1320" height="1.2" fill="url(#goldsoft)" opacity="0.55" />
+
+  <!-- ================================================================= -->
+  <!-- HEADER · Logo brand + Powered by TKECH -->
+  <!-- ================================================================= -->
+  <g transform="translate(72, 58)">
+    <!-- Logo Shield glow -->
+    <g transform="translate(0, 0)">
+      <g filter="url(#glowgold)">
+        <rect x="0" y="0" width="78" height="78" rx="20" ry="20" fill="url(#gold3)" />
+      </g>
+      <rect x="0" y="0" width="78" height="78" rx="20" ry="20" fill="url(#gold3)" />
+      <path
+        d="M39 14 L61 23 V41 C61 54 51 60 39 64 C27 60 17 54 17 41 V23 Z M29 35 L35 44 L49 29"
+        fill="#0b0906"
+        stroke="#0b0906"
+        stroke-width="2"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+      />
+    </g>
+
+    <!-- Wordmark -->
+    <g transform="translate(102, 10)">
+      <text
+        x="0"
+        y="32"
+        font-family="'Playfair Display', 'Times New Roman', Times, serif"
+        font-size="38"
+        font-weight="700"
+        fill="url(#gold3)"
+        letter-spacing="0.3px"
+      >FUNDGUARD</text>
+      <text
+        x="0"
+        y="56"
+        font-family="Inter, ui-sans-serif, system-ui, sans-serif"
+        font-size="11"
+        letter-spacing="4.8"
+        text-transform="uppercase"
+        fill="#e9ae30"
+        fill-opacity="0.62"
+      >Powered by TKECH</text>
+    </g>
+
+    <!-- Trust strip right -->
+    <g transform="translate(760, 2)">
+      <g transform="translate(0, 0)">
+        <rect x="0" y="14" width="320" height="44" rx="999" ry="999" fill="rgba(255,255,255,0.03)" stroke="rgba(233,174,48,0.22)" />
+      </g>
+      <text x="26" y="42" font-family="Inter, sans-serif" font-size="13" fill="#e9ae30" fill-opacity="0.95" font-weight="600" letter-spacing="2.4" text-transform="uppercase">Sin tarjeta · Sin KYC</text>
+    </g>
+  </g>
+
+  <!-- ================================================================= -->
+  <!-- H1 · Headline (SEO título exacto) -->
+  <!-- ================================================================= -->
+  <g transform="translate(72, 198)">
+    <text
+      x="0" y="0"
+      font-family="'Playfair Display', 'Times New Roman', serif"
+      font-size="80"
+      font-weight="700"
+      fill="#fff"
+      letter-spacing="-1px"
+    >Prop trading,</text>
+    <text
+      x="0" y="94"
+      font-family="'Playfair Display', 'Times New Roman', serif"
+      font-size="80"
+      font-weight="700"
+      fill="url(#gold3)"
+      letter-spacing="-1px"
+    >sin distracciones.</text>
+
+    <!-- Sub -->
+    <text x="0" y="152" font-family="Inter, sans-serif" font-size="22" fill="#a8a29e" fill-opacity="0.95">
+      La suite institucional para traders que pasan desafíos y sacan payout.
+    </text>
+    <text x="0" y="184" font-family="Inter, sans-serif" font-size="19" fill="#a8a29e" fill-opacity="0.85">
+      Reglas PDF oficiales · Alertas antes de cruzar límites · Equity curve cinematográfica · Conexión MT5 / cTrader sin credenciales compartidas.
+    </text>
+
+    <!-- CTA pill -->
+    <g transform="translate(0, 226)">
+      <rect x="0" y="0" width="346" height="72" rx="999" ry="999" fill="url(#gold3)" filter="url(#glowgold)" />
+      <rect x="0" y="0" width="346" height="72" rx="999" ry="999" fill="url(#gold3)" />
+      <text x="36" y="46" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#0b0906" letter-spacing="0.2px">
+        Crear desafío gratis
+      </text>
+      <polyline points="294,30 310,36 294,42" fill="none" stroke="#0b0906" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+
+    <!-- Second soft CTA -->
+    <g transform="translate(378, 226)">
+      <rect x="0" y="0" width="300" height="72" rx="999" ry="999" fill="rgba(255,255,255,0.03)" stroke="rgba(233,174,48,0.28)" />
+      <text x="36" y="46" font-family="Inter, sans-serif" font-size="19" font-weight="600" fill="#ffe39a" fill-opacity="0.96">
+        Probar sin registrarse
+      </text>
+    </g>
+  </g>
+
+  <!-- ================================================================= -->
+  <!-- 3 Stats mini · Trust numbers -->
+  <!-- ================================================================= -->
+  <g transform="translate(72, 510)">
+    <g>
+      <rect x="0" y="0" width="340" height="88" rx="22" ry="22" fill="rgba(255,255,255,0.03)" stroke="rgba(233,174,48,0.14)" />
+      <text x="28" y="40" font-family="'Playfair Display', serif" font-size="34" font-weight="700" fill="#fff">11+</text>
+      <text x="28" y="66" font-family="Inter, sans-serif" font-size="14" fill="#d6d3d1" fill-opacity="0.9" letter-spacing="0.4px">Prop Firms verificadas (PDF oficiales)</text>
+    </g>
+
+    <g transform="translate(360, 0)">
+      <rect x="0" y="0" width="340" height="88" rx="22" ry="22" fill="rgba(255,255,255,0.03)" stroke="rgba(52,211,153,0.16)" />
+      <text x="28" y="40" font-family="'Playfair Display', serif" font-size="34" font-weight="700" fill="#fff">≤ 90s</text>
+      <text x="28" y="66" font-family="Inter, sans-serif" font-size="14" fill="#d6d3d1" fill-opacity="0.9">Primer desafío · Sin validación</text>
+    </g>
+
+    <g transform="translate(720, 0)">
+      <rect x="0" y="0" width="340" height="88" rx="22" ry="22" fill="rgba(255,255,255,0.03)" stroke="rgba(232,121,249,0.16)" />
+      <text x="28" y="40" font-family="'Playfair Display', serif" font-size="34" font-weight="700" fill="#fff">80%</text>
+      <text x="28" y="66" font-family="Inter, sans-serif" font-size="14" fill="#d6d3d1" fill-opacity="0.9">Alertas antes del límite · DD Diario / Máx</text>
+    </g>
+  </g>
+
+  <!-- Watermark bottom-right tiny (anti hotlink / branding subtle) -->
+  <g transform="translate(1046, 584)" opacity="0.85">
+    <text
+      font-family="Inter, sans-serif"
+      font-size="11"
+      letter-spacing="3.6"
+      text-transform="uppercase"
+      fill="#e9ae30"
+      fill-opacity="0.42"
+    >fundguard.app</text>
+  </g>
+</svg>

@@ -1,0 +1,40 @@
+name: CI · Lint · Typecheck · Tests · Build
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+    name: Lint · Typecheck · Vitest · Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install deps (ci lockfile)
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck (tsc --noEmit)
+        run: npm run typecheck
+
+      - name: Vitest suite
+        run: node node_modules/vitest/vitest.mjs run
+
+      - name: Build Next.js
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder_anon_key_32bytes_minimum
+          WORKER_AES_MASTER_KEY: dev-ci-aes-master-key-32bytes-1234567
+          WORKER_PULL_SECRET: dev-ci-worker-pull-secret-testing
