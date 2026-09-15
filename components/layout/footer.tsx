@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShieldCheck, Mail, Github, Twitter } from "lucide-react";
+import { ShieldCheck, Mail, Github, Twitter } from "@/lib/ui/lucide-polyfill";
 
 export function Footer() {
   return (

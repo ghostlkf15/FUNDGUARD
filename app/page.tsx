@@ -18,7 +18,7 @@ import {
   Bot,
   Shield,
   Eye,
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { DashboardPreview } from "@/components/sections/dashboard-preview";

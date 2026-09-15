@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Building2, Crown, PlusCircle, Wallet, ChevronRight,
   ToggleLeft, ToggleRight, Edit3, Trash2, Save, XCircle, Eye, EyeOff
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import { cn, formatCurrency } from "@/lib/utils";
 import { toast } from "@/components/ui/sonner";
 import {

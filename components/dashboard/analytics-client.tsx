@@ -34,7 +34,7 @@ import {
   Trophy,
   ChevronRight,
   ShieldCheck,
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import {
   formatCurrency,
   formatPercent,

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Crown, ChevronRight, PlusCircle, Wallet, Search } from "lucide-react";
+import { Crown, ChevronRight, PlusCircle, Wallet, Search } from "@/lib/ui/lucide-polyfill";
 import { DEFAULT_FIRMS, getPresetsByFirm, getFirmsByMarket } from "@/lib/data/seed";
 import { cn } from "@/lib/utils";
 import { FirmLogo } from "@/components/ui/firm-logo";

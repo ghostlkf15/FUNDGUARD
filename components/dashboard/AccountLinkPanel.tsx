@@ -6,7 +6,7 @@ import {
   Clock3, Link2, PlayCircle, XCircle, ChevronRight,
   Terminal, Code2, Bot, Download, ExternalLink, Eye, EyeOff,
   ShieldCheck, Check, Globe2, Sparkles,
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { Challenge, Firm, FirmPreset, AccountLinkMethod } from "@/lib/types";

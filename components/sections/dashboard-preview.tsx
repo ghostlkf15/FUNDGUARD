@@ -16,7 +16,7 @@ import {
   Cell,
   ReferenceLine,
 } from "recharts";
-import { TrendingUp, TrendingDown, Target, Shield, Calendar, AlertTriangle, CheckCircle2, Clock3 } from "lucide-react";
+import { TrendingUp, TrendingDown, Target, Shield, Calendar, AlertTriangle, CheckCircle2, Clock3 } from "@/lib/ui/lucide-polyfill";
 import { cn, formatCurrency, formatPercent, cnPnl, formatNumber } from "@/lib/utils";
 
 function generateEquitySeries(days = 30) {

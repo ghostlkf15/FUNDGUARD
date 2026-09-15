@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Crown, ChevronLeft, Edit3, Trash2, PlusCircle, Save, XCircle, ChevronUp, ChevronDown } from "lucide-react";
+import { Crown, ChevronLeft, Edit3, Trash2, PlusCircle, Save, XCircle, ChevronUp, ChevronDown } from "@/lib/ui/lucide-polyfill";
 import {
   createPresetAction,
   updatePresetNameAction,

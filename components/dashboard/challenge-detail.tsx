@@ -13,7 +13,7 @@ import {
   AlertTriangle, CheckCircle2, Clock3, Link2, RefreshCw,
   XCircle, Copy, Activity, PlayCircle,
   BellRing, Download, Settings2, ChevronRight
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import { cn, formatCurrency, formatPercent, formatNumber, cnPnl } from "@/lib/utils";
 import type { Challenge, Trade, RuleEvent } from "@/lib/types";
 import { getFirmById, getPresetById } from "@/lib/data/seed";

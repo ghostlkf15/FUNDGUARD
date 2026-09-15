@@ -26,7 +26,7 @@ import {
   TrendingUp,
   User,
   Sparkles,
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { MarketType, FirmPreset, Firm, AccountLinkMethod } from "@/lib/types";

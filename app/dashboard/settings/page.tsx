@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Settings as SettingsIcon, Globe2, BellRing, ShieldCheck, Eye, User, Save } from "lucide-react";
+import { Settings as SettingsIcon, Globe2, BellRing, ShieldCheck, Eye, User, Save } from "@/lib/ui/lucide-polyfill";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/lib/types";
 import { SettingsClient } from "@/components/dashboard/settings-client";

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "@/lib/ui/lucide-polyfill";
 import FirmDetailAdminClient from "@/components/admin/FirmDetailAdminClient";
 import { getFirmById, getPresetsByFirm } from "@/lib/data/seed";
 import type { Firm, FirmPreset } from "@/lib/types";

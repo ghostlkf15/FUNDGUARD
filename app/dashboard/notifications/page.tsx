@@ -8,7 +8,7 @@ import {
   ChevronRight,
   Check,
   Mail,
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import { cn } from "@/lib/utils";
 import type { RuleEvent, Challenge, Firm, RuleEventType } from "@/lib/types";
 import { NotificationsClient } from "@/components/dashboard/notifications-client";

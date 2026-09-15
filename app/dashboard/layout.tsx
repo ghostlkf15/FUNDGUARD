@@ -12,7 +12,7 @@ import {
   Crown,
   UserCircle2,
   ChevronRight,
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import { createClient } from "@/lib/supabase/server";
 
 async function getUser() {

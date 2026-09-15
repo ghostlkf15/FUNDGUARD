@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "@/lib/ui/lucide-polyfill";
 import { cn } from "@/lib/utils";
 
 export function PagePreloader() {

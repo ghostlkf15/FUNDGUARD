@@ -10,7 +10,7 @@ import {
   ChevronRight,
   Check,
   Mail,
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import { toast } from "@/components/ui/sonner";
 import { markEventReadAction, markAllEventsReadAction } from "@/lib/dashboard/actions";
 import { cn, formatRelative } from "@/lib/utils";

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Profile } from "@/lib/types";
-import { Globe2, BellRing, ShieldCheck, Eye, User, Save, Check, AlertTriangle } from "lucide-react";
+import { Globe2, BellRing, ShieldCheck, Eye, User, Save, Check, AlertTriangle } from "@/lib/ui/lucide-polyfill";
 import { toast } from "@/components/ui/sonner";
 import { updateProfileAction } from "@/lib/dashboard/actions";
 import { cn } from "@/lib/utils";

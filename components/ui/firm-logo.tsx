@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Building2, Landmark, BarChart3, Coins, Activity } from "lucide-react";
+import { Building2, Landmark, BarChart3, Coins, Activity } from "@/lib/ui/lucide-polyfill";
 import { cn } from "@/lib/utils";
 import type { Firm, MarketType } from "@/lib/types";
 

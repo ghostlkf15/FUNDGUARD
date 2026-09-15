@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Building2, CheckCircle2, ChevronRight, Landmark, BarChart3, Coins, Activity } from "lucide-react";
+import { Building2, CheckCircle2, ChevronRight, Landmark, BarChart3, Coins, Activity } from "@/lib/ui/lucide-polyfill";
 import { cn } from "@/lib/utils";
 import type { MarketType } from "@/lib/types";
 import { DEFAULT_FIRMS, getPresetsByFirm } from "@/lib/data/seed";

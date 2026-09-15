@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldCheck, Menu, X, TrendingUp } from "lucide-react";
+import { ShieldCheck, Menu, X, TrendingUp } from "@/lib/ui/lucide-polyfill";
 import { cn } from "@/lib/utils";
 
 const nav = [

@@ -14,7 +14,7 @@ import {
   XCircle,
   Clock3,
   Link2,
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import { createClient } from "@/lib/supabase/server";
 import { cn, formatCurrency, formatPercent } from "@/lib/utils";
 import { getFirmById, getPresetById } from "@/lib/data/seed";

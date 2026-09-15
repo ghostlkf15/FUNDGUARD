@@ -13,7 +13,7 @@ import {
   Zap,
   Trophy,
   ArrowRight as ArrowRightIcon,
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import {
   ResponsiveContainer,
   AreaChart,

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   ShieldCheck, CheckCircle2, Sparkles, ArrowRight, TrendingUp, BellRing, Lock, Zap,
-} from "lucide-react";
+} from "@/lib/ui/lucide-polyfill";
 import { createClient } from "@/lib/supabase/server";
 import { AuthForm } from "@/components/auth/auth-form";
 import { DEFAULT_FIRMS } from "@/lib/data/seed";
