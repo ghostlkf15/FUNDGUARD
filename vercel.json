@@ -1,0 +1,12 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "installCommand": "npm install",
+  "devCommand": "next dev",
+  "crons": [
+    {
+      "path": "/api/worker/pull-crypto",
+      "schedule": "*/3 * * * *"
+    }
+  ]
+}
