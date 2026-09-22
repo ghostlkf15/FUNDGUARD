@@ -31,7 +31,6 @@ import {
   Activity,
   Sparkles,
   Zap,
-  Trophy,
   ChevronRight,
   ShieldCheck,
 } from "@/lib/ui/lucide-polyfill";

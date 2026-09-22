@@ -11,7 +11,6 @@ import {
   Activity,
   Sparkles,
   Zap,
-  Trophy,
   ArrowRight as ArrowRightIcon,
 } from "@/lib/ui/lucide-polyfill";
 import {
