@@ -16,23 +16,33 @@ import {
 import { createClient } from "@/lib/supabase/server";
 
 async function getUser() {
-  const sb = await createClient();
-  const { data, error } = await sb.auth.getUser();
-  if (error || !data?.user) return null;
+  try {
+    const sb = await createClient();
+    const { data, error } = await sb.auth.getUser();
+    if (error || !data?.user) return null;
 
-  const { data: profile } = await sb
-    .from("profiles")
-    .select("full_name, is_admin, avatar_url")
-    .eq("id", data.user.id)
-    .maybeSingle();
+    let profile: { full_name?: string | null; is_admin?: boolean | null; avatar_url?: string | null } | null = null;
+    try {
+      const res = await sb
+        .from("profiles")
+        .select("full_name, is_admin, avatar_url")
+        .eq("id", data.user.id)
+        .maybeSingle();
+      profile = res.data;
+    } catch {
+      profile = null;
+    }
 
-  return {
-    id: data.user.id,
-    email: data.user.email,
-    fullName: profile?.full_name ?? data.user.email,
-    isAdmin: !!profile?.is_admin,
-    avatarUrl: profile?.avatar_url,
-  };
+    return {
+      id: data.user.id,
+      email: data.user.email,
+      fullName: profile?.full_name ?? data.user.email ?? "",
+      isAdmin: !!profile?.is_admin,
+      avatarUrl: profile?.avatar_url ?? undefined,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export default async function DashboardLayout({

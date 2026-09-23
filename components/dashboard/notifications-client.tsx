@@ -141,9 +141,7 @@ export function NotificationsClient({
       try {
         await markAllEventsReadAction();
         setEvents((prev) => prev.map((e) => ({ ...e, is_read: true, read_at: new Date().toISOString() })));
-        toast.success("Todas las notificaciones leídas", {
-          icon: <Check className="w-4 h-4" />,
-        });
+        toast.success("Todas las notificaciones leídas");
         router.refresh();
       } catch (e) {
         const m = e instanceof Error ? e.message : "sin detalles";

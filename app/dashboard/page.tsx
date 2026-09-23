@@ -33,34 +33,38 @@ const statusMeta: Record<ChallengeStatus, { label: string; icon: any; cls: strin
 };
 
 async function getUserAndChallenges() {
-  const sb = await createClient();
-  const { data: userData, error: uErr } = await sb.auth.getUser();
-  if (uErr || !userData?.user) return { user: null, challenges: [], counts: null as any };
-
-  const uid = userData.user.id;
-
-  let challenges: Challenge[] = [];
   try {
-    const { data, error } = await sb
-      .from("challenges")
-      .select("*")
-      .eq("user_id", uid)
-      .order("updated_at", { ascending: false });
-    if (!error && Array.isArray(data)) challenges = data as Challenge[];
-  } catch {}
+    const sb = await createClient();
+    const { data: userData, error: uErr } = await sb.auth.getUser();
+    if (uErr || !userData?.user) return { user: null, challenges: [], counts: null as any };
 
-  if (challenges.length === 0) {
-    challenges = buildMockChallengesForUser(uid);
+    const uid = userData.user.id;
+
+    let challenges: Challenge[] = [];
+    try {
+      const { data, error } = await sb
+        .from("challenges")
+        .select("*")
+        .eq("user_id", uid)
+        .order("updated_at", { ascending: false });
+      if (!error && Array.isArray(data)) challenges = data as Challenge[];
+    } catch {}
+
+    if (challenges.length === 0) {
+      challenges = buildMockChallengesForUser(uid);
+    }
+
+    const counts = {
+      total: challenges.length,
+      active: challenges.filter((c) => c.status === "active" || c.status === "phase_changed").length,
+      approved: challenges.filter((c) => c.status === "approved").length,
+      failed: challenges.filter((c) => c.status === "failed").length,
+    };
+
+    return { user: userData.user, challenges, counts };
+  } catch {
+    return { user: null, challenges: [], counts: null as any };
   }
-
-  const counts = {
-    total: challenges.length,
-    active: challenges.filter((c) => c.status === "active" || c.status === "phase_changed").length,
-    approved: challenges.filter((c) => c.status === "approved").length,
-    failed: challenges.filter((c) => c.status === "failed").length,
-  };
-
-  return { user: userData.user, challenges, counts };
 }
 
 function buildMockChallengesForUser(userId: string) {

@@ -37,84 +37,101 @@ const KIND_FROM_TYPE: Partial<Record<RuleEventType, FilterKey>> = {
 };
 
 export default async function NotificationsPage() {
-  const sb = await createClient();
-  const { data } = await sb.auth.getUser();
-  if (!data?.user) redirect("/login?next=/dashboard/notifications");
-  const uid = data.user.id;
+  try {
+    const sb = await createClient();
+    const { data } = await sb.auth.getUser();
+    if (!data?.user) redirect("/login?next=/dashboard/notifications");
+    const uid = data.user.id;
 
-  const { data: ownChallenges } = await sb
-    .from("challenges")
-    .select(
-      "id, user_id, firm_id, preset_id, market, current_phase, status, initial_balance, current_balance, current_equity, peak_equity, start_daily_balance, daily_pnl, total_pnl, total_pnl_pct, daily_drawdown_pct, max_drawdown_pct, trading_days_count, last_trade_date, ea_last_report_at, broker_server_timezone, link_method, report_key_hash, crypto_api_key_enc, crypto_api_secret_enc, crypto_exchange_id, crypto_passphrase_enc, started_at, ended_at, created_at, updated_at, firm:firms(*)",
-    )
-    .eq("user_id", uid);
-
-  const challengeIds = (ownChallenges ?? []).map((c: { id: string }) => c.id);
-
-  const { data: events = [] } = challengeIds.length
-    ? await sb
-        .from("rule_events")
+    let ownChallenges: any[] = [];
+    try {
+      const res = await sb
+        .from("challenges")
         .select(
-          "id, challenge_id, type, message, severity, is_read, read_at, snapshot_json, created_at",
+          "id, user_id, firm_id, preset_id, market, current_phase, status, initial_balance, current_balance, current_equity, peak_equity, start_daily_balance, daily_pnl, total_pnl, total_pnl_pct, daily_drawdown_pct, max_drawdown_pct, trading_days_count, last_trade_date, ea_last_report_at, broker_server_timezone, link_method, report_key_hash, crypto_api_key_enc, crypto_api_secret_enc, crypto_exchange_id, crypto_passphrase_enc, started_at, ended_at, created_at, updated_at, firm:firms(*)",
         )
-        .in("challenge_id", challengeIds)
-        .order("created_at", { ascending: false })
-        .limit(400)
-    : { data: [] };
+        .eq("user_id", uid);
+      ownChallenges = res.data ?? [];
+    } catch {
+      ownChallenges = [];
+    }
 
-  const enriched: EnrichedEvent[] = (events as RuleEvent[]).map((ev) => {
-    const ch = (ownChallenges ?? []).find((c: { id: string }) => c.id === ev.challenge_id) as
-      | (Challenge & { firm: Firm })
-      | undefined;
-    return { ...ev, challenge: ch ?? null };
-  });
+    const challengeIds = (ownChallenges ?? []).map((c: { id: string }) => c.id);
 
-  const unreadCount = enriched.filter((e) => !e.is_read).length;
-  const counts: Record<FilterKey, number> = {
-    all: enriched.length,
-    approved: enriched.filter((e) => KIND_FROM_TYPE[e.type] === "approved").length,
-    failed: enriched.filter((e) => KIND_FROM_TYPE[e.type] === "failed").length,
-    alert: enriched.filter((e) => KIND_FROM_TYPE[e.type] === "alert").length,
-    system: enriched.filter((e) => KIND_FROM_TYPE[e.type] === "system").length,
-  };
+    let events: any[] = [];
+    try {
+      events = challengeIds.length
+        ? (
+            await sb
+              .from("rule_events")
+              .select(
+                "id, challenge_id, type, message, severity, is_read, read_at, snapshot_json, created_at",
+              )
+              .in("challenge_id", challengeIds)
+              .order("created_at", { ascending: false })
+              .limit(400)
+          ).data ?? []
+        : [];
+    } catch {
+      events = [];
+    }
 
-  const fallback = buildMockNotifications();
-  const finalEvents: EnrichedEvent[] = enriched.length ? enriched : fallback;
-  const finalUnread = enriched.length ? unreadCount : fallback.filter((f) => !f.is_read).length;
+    const enriched: EnrichedEvent[] = (events as RuleEvent[]).map((ev) => {
+      const ch = (ownChallenges ?? []).find((c: { id: string }) => c.id === ev.challenge_id) as
+        | (Challenge & { firm: Firm })
+        | undefined;
+      return { ...ev, challenge: ch ?? null };
+    });
 
-  return (
-    <div className="p-6 md:p-10 max-w-5xl mx-auto space-y-8">
-      <div>
-        <div className="chip-gold mb-3 !py-1">
-          <BellRing className="w-3 h-3" /> Centro de notificaciones
-        </div>
-        <div className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="font-display text-4xl md:text-5xl tracking-tight mb-2">
-              Tu <span className="gold-gradient-text">timeline</span>
-            </h1>
-            <p className="text-muted-foreground max-w-xl">
-              Todos los eventos del motor de reglas, alertas y cambios de estado en una sola vista.
-            </p>
+    const unreadCount = enriched.filter((e) => !e.is_read).length;
+    const counts: Record<FilterKey, number> = {
+      all: enriched.length,
+      approved: enriched.filter((e) => KIND_FROM_TYPE[e.type] === "approved").length,
+      failed: enriched.filter((e) => KIND_FROM_TYPE[e.type] === "failed").length,
+      alert: enriched.filter((e) => KIND_FROM_TYPE[e.type] === "alert").length,
+      system: enriched.filter((e) => KIND_FROM_TYPE[e.type] === "system").length,
+    };
+
+    const fallback = buildMockNotifications();
+    const finalEvents: EnrichedEvent[] = enriched.length ? enriched : fallback;
+    const finalUnread = enriched.length ? unreadCount : fallback.filter((f) => !f.is_read).length;
+
+    return (
+      <div className="p-6 md:p-10 max-w-5xl mx-auto space-y-8">
+        <div>
+          <div className="chip-gold mb-3 !py-1">
+            <BellRing className="w-3 h-3" /> Centro de notificaciones
           </div>
-          <div className="flex items-center gap-2">
-            <div className="chip-gold !py-0 !gap-1.5">
-              <BellRing className="w-3 h-3" />
-              <span className="font-semibold">{finalUnread}</span>
-              <span className="text-muted-foreground/80">sin leer</span>
+          <div className="flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="font-display text-4xl md:text-5xl tracking-tight mb-2">
+                Tu <span className="gold-gradient-text">timeline</span>
+              </h1>
+              <p className="text-muted-foreground max-w-xl">
+                Todos los eventos del motor de reglas, alertas y cambios de estado en una sola vista.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="chip-gold !py-0 !gap-1.5">
+                <BellRing className="w-3 h-3" />
+                <span className="font-semibold">{finalUnread}</span>
+                <span className="text-muted-foreground/80">sin leer</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <NotificationsClient
-        initialEvents={finalEvents as any}
-        initialCounts={counts}
-        initialUnread={finalUnread}
-        hasRealData={enriched.length > 0}
-      />
-    </div>
-  );
+        <NotificationsClient
+          initialEvents={finalEvents as any}
+          initialCounts={counts}
+          initialUnread={finalUnread}
+          hasRealData={enriched.length > 0}
+        />
+      </div>
+    );
+  } catch (e) {
+    redirect("/login?next=/dashboard/notifications");
+  }
 }
 
 function buildMockNotifications(): EnrichedEvent[] {

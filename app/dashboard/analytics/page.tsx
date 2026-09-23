@@ -46,77 +46,101 @@ interface ChallengeWithFirm extends Challenge {
 }
 
 export default async function AnalyticsPage() {
-  const sb = await createClient();
-  const { data } = await sb.auth.getUser();
-  if (!data?.user) redirect("/login?next=/dashboard/analytics");
-  const uid = data.user.id;
+  try {
+    const sb = await createClient();
+    const { data } = await sb.auth.getUser();
+    if (!data?.user) redirect("/login?next=/dashboard/analytics");
+    const uid = data.user.id;
 
-  const { data: challengesRaw = [] } = await sb
-    .from("challenges")
-    .select("*, firm:firms(*)")
-    .eq("user_id", uid)
-    .order("created_at", { ascending: false });
+    let challengesRaw: any[] = [];
+    try {
+      const res = await sb
+        .from("challenges")
+        .select("*, firm:firms(*)")
+        .eq("user_id", uid)
+        .order("created_at", { ascending: false });
+      challengesRaw = res.data || [];
+    } catch {
+      challengesRaw = [];
+    }
 
-  const challenges = (challengesRaw as ChallengeWithFirm[]) || [];
-  const hasChallenges = challenges.length > 0;
+    const challenges = (challengesRaw as ChallengeWithFirm[]) || [];
+    const hasChallenges = challenges.length > 0;
 
-  const challengeIds = challenges.map((c) => c.id);
+    const challengeIds = challenges.map((c) => c.id);
 
-  const { data: events = [] } = challengeIds.length
-    ? await sb
-        .from("rule_events")
-        .select("id, challenge_id, type, severity, created_at")
-        .in("challenge_id", challengeIds)
-        .order("created_at", { ascending: true })
-    : { data: [] };
+    let events: any[] = [];
+    try {
+      events = challengeIds.length
+        ? (
+            await sb
+              .from("rule_events")
+              .select("id, challenge_id, type, severity, created_at")
+              .in("challenge_id", challengeIds)
+              .order("created_at", { ascending: true })
+          ).data || []
+        : [];
+    } catch {
+      events = [];
+    }
 
-  const eventsTyped = events as RuleEvent[];
+    const eventsTyped = events as RuleEvent[];
 
-  const { data: snaps = [] } = challengeIds.length
-    ? await sb
-        .from("equity_snapshots")
-        .select("id, challenge_id, balance, equity, total_pnl, daily_pnl, timestamp")
-        .in("challenge_id", challengeIds)
-        .order("timestamp", { ascending: true })
-        .limit(1200)
-    : { data: [] };
+    let snaps: any[] = [];
+    try {
+      snaps = challengeIds.length
+        ? (
+            await sb
+              .from("equity_snapshots")
+              .select("id, challenge_id, balance, equity, total_pnl, daily_pnl, timestamp")
+              .in("challenge_id", challengeIds)
+              .order("timestamp", { ascending: true })
+              .limit(1200)
+          ).data || []
+        : [];
+    } catch {
+      snaps = [];
+    }
 
-  const snapsTyped = snaps as {
-    id: string;
-    challenge_id: string;
-    balance: number;
-    equity: number;
-    total_pnl: number;
-    daily_pnl: number;
-    timestamp: string;
-  }[];
+    const snapsTyped = snaps as {
+      id: string;
+      challenge_id: string;
+      balance: number;
+      equity: number;
+      total_pnl: number;
+      daily_pnl: number;
+      timestamp: string;
+    }[];
 
-  const aggs = computeAggregates(challenges, eventsTyped, snapsTyped);
+    const aggs = computeAggregates(challenges, eventsTyped, snapsTyped);
 
-  return (
-    <div className="p-6 md:p-10 max-w-[1400px] mx-auto space-y-8">
-      <div>
-        <div className="chip-gold mb-3 !py-1">
-          <Activity className="w-3 h-3" /> Analíticas
+    return (
+      <div className="p-6 md:p-10 max-w-[1400px] mx-auto space-y-8">
+        <div>
+          <div className="chip-gold mb-3 !py-1">
+            <Activity className="w-3 h-3" /> Analíticas
+          </div>
+          <h1 className="font-display text-4xl md:text-5xl tracking-tight mb-2">
+            Tu <span className="gold-gradient-text">performance</span> global
+          </h1>
+          <p className="text-muted-foreground max-w-2xl">
+            Métricas agregadas por firma, mercado y fase. Identifica patrones y
+            optimiza tu estrategia.
+          </p>
         </div>
-        <h1 className="font-display text-4xl md:text-5xl tracking-tight mb-2">
-          Tu <span className="gold-gradient-text">performance</span> global
-        </h1>
-        <p className="text-muted-foreground max-w-2xl">
-          Métricas agregadas por firma, mercado y fase. Identifica patrones y
-          optimiza tu estrategia.
-        </p>
-      </div>
 
-      <AnalyticsClient
-        aggregates={aggs}
-        events={eventsTyped}
-        snapshots={snapsTyped}
-        challenges={challenges as any}
-        hasRealData={hasChallenges}
-      />
-    </div>
-  );
+        <AnalyticsClient
+          aggregates={aggs}
+          events={eventsTyped}
+          snapshots={snapsTyped}
+          challenges={challenges as any}
+          hasRealData={hasChallenges}
+        />
+      </div>
+    );
+  } catch (e) {
+    redirect("/login?next=/dashboard/analytics");
+  }
 }
 
 // ============================================================================

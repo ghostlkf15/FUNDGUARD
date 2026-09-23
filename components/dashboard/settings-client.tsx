@@ -94,14 +94,12 @@ export function SettingsClient({ initialProfile, timezones, languages, email }: 
         });
         toast.success("Ajustes guardados", {
           description: "Tus preferencias se actualizaron correctamente.",
-          icon: <Check className="w-4 h-4" />,
         });
         router.refresh();
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Error desconocido";
         toast.error("No se pudieron guardar los ajustes", {
           description: msg,
-          icon: <AlertTriangle className="w-4 h-4" />,
         });
       }
     });
