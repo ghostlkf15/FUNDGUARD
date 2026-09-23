@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Profile } from "@/lib/types";
-import { Globe2, BellRing, ShieldCheck, Eye, User, Save, Check, AlertTriangle } from "@/lib/ui/lucide-polyfill";
+import { Globe2, BellRing, ShieldCheck, Eye, User, Save, Check, AlertTriangle, Download, RefreshCw } from "@/lib/ui/lucide-polyfill";
 import { toast } from "@/components/ui/sonner";
 import { updateProfileAction } from "@/lib/dashboard/actions";
 import { cn } from "@/lib/utils";
@@ -15,27 +15,62 @@ interface SettingsClientProps {
   email: string;
 }
 
+interface GroupItem {
+  label: string;
+  action?: "download" | "rotate-key" | "placeholder";
+  file?: string;
+}
+
 interface Group {
   icon: any;
   title: string;
   desc: string;
-  items: string[];
+  items: GroupItem[];
 }
+
+const EA_DOWNLOADS: Record<string, string> = {
+  "EA MT5 · v1.2.0": "/ea/FundGuard_EA.ex5",
+  "EA MT4 · v1.1.3": "/ea/FundGuard_EA_MT4.mq4",
+  "cBot CTRader · v1.0.1": "/ea/FundGuard_cBot.cs",
+};
 
 const GROUPS: Group[] = [
   {
     icon: ShieldCheck,
     title: "Seguridad",
     desc: "Contraseña, 2FA y sesiones activas.",
-    items: ["Cambiar contraseña", "Sesiones activas", "API keys personales"],
+    items: [
+      { label: "Cambiar contraseña", action: "placeholder" },
+      { label: "Sesiones activas", action: "placeholder" },
+      { label: "API keys personales", action: "placeholder" },
+    ],
   },
   {
     icon: Eye,
     title: "EA / cBot",
     desc: "Versiones actuales del software de reporte.",
-    items: ["EA MT5 · v1.2.0", "EA MT4 · v1.1.3", "cBot CTRader · v1.0.1", "Regenerar clave de reporte"],
+    items: [
+      { label: "EA MT5 · v1.2.0", action: "download", file: "/ea/FundGuard_EA.ex5" },
+      { label: "EA MT4 · v1.1.3", action: "download", file: "/ea/FundGuard_EA_MT4.mq4" },
+      { label: "cBot CTRader · v1.0.1", action: "download", file: "/ea/FundGuard_cBot.cs" },
+      { label: "Regenerar clave de reporte", action: "placeholder" },
+    ],
   },
 ];
+
+function triggerDownload(filePath: string, label: string) {
+  try {
+    const a = document.createElement("a");
+    a.href = filePath;
+    a.download = filePath.split("/").pop() || "file";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast.success(`Descargando: ${label}`);
+  } catch {
+    toast.error("No se pudo iniciar la descarga");
+  }
+}
 
 export function SettingsClient({ initialProfile, timezones, languages, email }: SettingsClientProps) {
   const router = useRouter();
@@ -313,12 +348,44 @@ export function SettingsClient({ initialProfile, timezones, languages, email }: 
               </div>
             </div>
             <ul className="space-y-1.5">
-              {g.items.map((it) => (
-                <li key={it} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-gold-500/20 transition-colors">
-                  <span className="text-sm">{it}</span>
-                  <span className="text-[10px] uppercase tracking-widest text-gold-300/80">Prox.</span>
-                </li>
-              ))}
+              {g.items.map((it) => {
+                if (it.action === "download" && it.file) {
+                  return (
+                    <li key={it.label}>
+                      <button
+                        type="button"
+                        onClick={() => triggerDownload(it.file!, it.label)}
+                        className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-gold-500/30 hover:bg-gold-500/5 transition-colors text-left group"
+                      >
+                        <span className="text-sm group-hover:text-gold-100 transition-colors">{it.label}</span>
+                        <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest text-gold-300/80 group-hover:text-gold-200 transition-colors">
+                          <Download className="w-3 h-3" /> Descargar
+                        </span>
+                      </button>
+                    </li>
+                  );
+                }
+                if (it.action === "rotate-key") {
+                  return (
+                    <li key={it.label}>
+                      <button
+                        type="button"
+                        className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-gold-500/20 transition-colors text-left opacity-70 cursor-not-allowed"
+                        disabled
+                      >
+                        <span className="text-sm">{it.label}</span>
+                        <span className="text-[10px] uppercase tracking-widest text-gold-300/80">Prox.</span>
+                      </button>
+                    </li>
+                  );
+                }
+                return (
+                  <li key={it.label} className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:border-gold-500/20 transition-colors">
+                    <span className="text-sm">{it.label}</span>
+                    <span className="text-[10px] uppercase tracking-widest text-gold-300/80">Prox.</span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}

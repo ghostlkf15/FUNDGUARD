@@ -156,6 +156,45 @@ export default function NewChallengeWizardPage() {
     }
   }
 
+  const EA_DOWNLOAD_MAP: Record<AccountLinkMethod, { file: string; label: string }[]> = {
+    ea_mt5: [
+      { file: "/ea/FundGuard_EA.ex5", label: "EA MT5 · Compilado (.ex5)" },
+      { file: "/ea/FundGuard_EA.mq5", label: "EA MT5 · Código fuente (.mq5)" },
+    ],
+    ea_mt4: [
+      { file: "/ea/FundGuard_EA_MT4.mq4", label: "EA MT4 · Código fuente (.mq4)" },
+    ],
+    cbot_ctrader: [
+      { file: "/ea/FundGuard_cBot.cs", label: "cBot cTrader · Código fuente (.cs)" },
+    ],
+    crypto_api: [],
+  };
+
+  function triggerDownload(filePath: string, label: string) {
+    try {
+      const a = document.createElement("a");
+      a.href = filePath;
+      a.download = filePath.split("/").pop() || "file";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast.success(`Descargando: ${label}`);
+    } catch {
+      toast.error("No se pudo iniciar la descarga");
+    }
+  }
+
+  function handleDownloadEa() {
+    if (!linkMethod) return toast.error("Selecciona un método de vinculación primero");
+    const downloads = EA_DOWNLOAD_MAP[linkMethod];
+    if (downloads.length === 0) return toast.info("Este método no requiere descarga de EA");
+    if (downloads.length === 1) {
+      triggerDownload(downloads[0].file, downloads[0].label);
+    } else {
+      downloads.forEach((d) => triggerDownload(d.file, d.label));
+    }
+  }
+
   return (
     <div className="p-6 md:p-10 max-w-6xl mx-auto">
       <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-gold-300 mb-6 transition-colors">
@@ -593,7 +632,7 @@ export default function NewChallengeWizardPage() {
                   <button type="button" disabled className="btn-ghost-gold !py-3 !px-5 text-sm opacity-60 cursor-not-allowed">
                     <KeyRound className="w-4 h-4" /> Bloqueada
                   </button>
-                  <button type="button" className="btn-gold !py-3 !px-5 text-sm">
+                  <button type="button" onClick={handleDownloadEa} className="btn-gold !py-3 !px-5 text-sm">
                     <Download className="w-4 h-4" /> Descargar EA/cBot
                   </button>
                 </div>
@@ -735,6 +774,29 @@ export default function NewChallengeWizardPage() {
                   No la compartas con nadie: cualquier persona con la clave podría enviar reportes falsos a tu nombre.
                 </div>
               </div>
+
+              {created.plain_report_key && linkMethod && EA_DOWNLOAD_MAP[linkMethod].length > 0 && (
+                <div className="mt-6 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Download className="w-4 h-4 text-gold-300" />
+                    <div className="text-xs uppercase tracking-[0.18em] font-semibold text-gold-200">
+                      Descargar EA / cBot
+                    </div>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {EA_DOWNLOAD_MAP[linkMethod].map((d) => (
+                      <button
+                        key={d.file}
+                        type="button"
+                        onClick={() => triggerDownload(d.file, d.label)}
+                        className="btn-ghost-gold !py-2.5 !px-4 text-xs justify-center w-full"
+                      >
+                        <Download className="w-3.5 h-3.5" /> {d.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-end">
                 <button
