@@ -97,10 +97,7 @@ export default function NewChallengeWizardPage() {
     if (step === 0 && !market) return toast.error("Selecciona un mercado");
     if (step === 1 && !firm) return toast.error("Selecciona una firma prop");
     if (step === 2 && !preset) return toast.error("Selecciona un tamaño de cuenta");
-    if (step === 3 && !linkMethod) return toast.error("Selecciona un método de vinculación");
-    if (step === 3 && linkMethod === "crypto_api" && (!apiKey || !apiSecret || !exchangeId))
-      return toast.error("Completa exchange, API key y secret");
-    setStep((s) => Math.min(STEPS.length, s + 1));
+    setStep((s) => Math.min(STEPS.length - 1, s + 1));
   }
 
   function canCreate() {
@@ -620,31 +617,31 @@ export default function NewChallengeWizardPage() {
             )}
 
             {linkMethod && market !== "crypto" && (
-              <div className="space-y-5 p-6 rounded-2xl border border-gold-500/20 bg-gold-500/5 backdrop-blur-xl">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <h3 className="font-semibold text-lg">Tu clave de reporte se genera al crear el desafío</h3>
-                  <span className="chip-gold">SOLO SE MUESTRA 1 VEZ</span>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-                  <div className="flex-1 px-4 py-3 rounded-lg bg-background/70 border border-white/[0.08] font-mono text-sm break-all select-none text-muted-foreground">
-                    ••••••••••••••••••••••••••••••••••••••••••••••••••
-                  </div>
-                  <button type="button" disabled className="btn-ghost-gold !py-3 !px-5 text-sm opacity-60 cursor-not-allowed">
-                    <KeyRound className="w-4 h-4" /> Bloqueada
-                  </button>
-                  <button type="button" onClick={handleDownloadEa} className="btn-gold !py-3 !px-5 text-sm">
-                    <Download className="w-4 h-4" /> Descargar EA/cBot
-                  </button>
-                </div>
-                <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
-                  <li>Al hacer clic en <strong>Crear desafío</strong> se genera la clave criptográficamente segura.</li>
-                  <li>Cópiala en lugar seguro: <strong className="text-gold-300">si la pierdes deberás ROTARLA invalidando la anterior</strong>.</li>
-                  <li>Descarga el experto y cópialo en la carpeta <code className="px-2 py-0.5 rounded bg-white/[0.05] text-xs text-gold-200">MQL5/Experts</code> o <code className="px-2 py-0.5 rounded bg-white/[0.05] text-xs text-gold-200">cAlgo/cBots</code>.</li>
-                  <li>En MetaTrader, activa <strong>"Algo Trading"</strong> y permite WebRequest para la URL del worker en Opciones → Expert Advisors.</li>
-                  <li>Adjunta el EA/cBot a cualquier gráfico (M1 recomendado), pega la clave y confirma.</li>
-                </ol>
+          <div className="space-y-5 p-6 rounded-2xl border border-gold-500/20 bg-gold-500/5 backdrop-blur-xl">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h3 className="font-semibold text-lg">Tu clave de reporte se genera al crear el desafío</h3>
+              <span className="chip-gold">SOLO SE MUESTRA 1 VEZ</span>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+              <div className="flex-1 px-4 py-3 rounded-lg bg-background/70 border border-white/[0.08] font-mono text-sm break-all select-none text-muted-foreground">
+                ••••••••••••••••••••••••••••••••••••••••••••••••••
               </div>
-            )}
+              <button type="button" disabled className="btn-ghost-gold !py-3 !px-5 text-sm opacity-60 cursor-not-allowed">
+                <KeyRound className="w-4 h-4" /> Bloqueada
+              </button>
+              <button type="button" onClick={handleDownloadEa} className="btn-gold !py-3 !px-5 text-sm">
+                <Download className="w-4 h-4" /> Descargar EA/cBot
+              </button>
+            </div>
+            <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
+              <li>Al hacer clic en <strong>Crear desafío</strong> se genera la clave criptográficamente segura.</li>
+              <li>Cópiala en lugar seguro: <strong className="text-gold-300">si la pierdes deberás ROTARLA invalidando la anterior</strong>.</li>
+              <li>Descarga el experto y cópialo en la carpeta <code className="px-2 py-0.5 rounded bg-white/[0.05] text-xs text-gold-200">MQL5/Experts</code> o <code className="px-2 py-0.5 rounded bg-white/[0.05] text-xs text-gold-200">cAlgo/cBots</code>.</li>
+              <li>En MetaTrader, activa <strong>"Algo Trading"</strong> y permite WebRequest para la URL del worker en Opciones → Expert Advisors.</li>
+              <li>Adjunta el EA/cBot a cualquier gráfico (M1 recomendado), pega la clave y confirma.</li>
+            </ol>
+          </div>
+        )}
           </div>
         )}
 
@@ -663,7 +660,7 @@ export default function NewChallengeWizardPage() {
           >
             <ChevronLeft className="w-4 h-4" /> Atrás
           </button>
-          {step < STEPS.length ? (
+          {step < STEPS.length - 1 ? (
             <button type="button" onClick={goNext} className="btn-gold text-sm">
               Continuar <ChevronRight className="w-4 h-4" />
             </button>
