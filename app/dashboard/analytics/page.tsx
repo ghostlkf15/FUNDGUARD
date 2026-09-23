@@ -177,12 +177,6 @@ function computeAggregates(
   events: RuleEvent[],
   snaps: { id: string; challenge_id: string; balance: number; equity: number; total_pnl: number; daily_pnl: number; timestamp: string }[],
 ): AnalyticsAggregates {
-  const useMock = challenges.length === 0;
-
-  if (useMock) {
-    return mockAggregates();
-  }
-
   const kpis = {
     total_challenges: challenges.length,
     approved: challenges.filter((c) => c.status === "approved").length,
@@ -290,18 +284,16 @@ function computeAggregates(
   const sortedDays = Array.from(dailyBuckets.entries()).sort(([a], [b]) => (a < b ? -1 : 1));
   let cumulativePnl = 0;
   let cumulativeEquity = 0;
-  const pnlOverTime = sortedDays.length
-    ? sortedDays.map(([d, v]) => {
-        cumulativePnl += v.pnlSum;
-        cumulativeEquity = v.equityLast || cumulativeEquity;
-        return {
-          t: d.slice(5),
-          date: d,
-          pnl: +cumulativePnl.toFixed(2),
-          equity: +cumulativeEquity.toFixed(2),
-        };
-      })
-    : fallbackPnlSeries();
+  const pnlOverTime = sortedDays.map(([d, v]) => {
+    cumulativePnl += v.pnlSum;
+    cumulativeEquity = v.equityLast || cumulativeEquity;
+    return {
+      t: d.slice(5),
+      date: d,
+      pnl: +cumulativePnl.toFixed(2),
+      equity: +cumulativeEquity.toFixed(2),
+    };
+  });
 
   // firm ranking bars
   const firmRankingBars = byFirm.slice(0, 8).map((r) => ({ firm: r.firm_name, pnl: r.pnl, rate: r.rate }));
@@ -317,15 +309,13 @@ function computeAggregates(
     evBuckets.set(d, cur);
   });
   const evSorted = Array.from(evBuckets.entries()).sort(([a], [b]) => (a < b ? -1 : 1)).slice(-21);
-  const eventsTimeline = evSorted.length
-    ? evSorted.map(([d, v]) => ({
-        t: d.slice(5),
-        label: d,
-        approved: v.approved,
-        failed: v.failed,
-        alerts: v.alerts,
-      }))
-    : fallbackEventsTimeline();
+  const eventsTimeline = evSorted.map(([d, v]) => ({
+    t: d.slice(5),
+    label: d,
+    approved: v.approved,
+    failed: v.failed,
+    alerts: v.alerts,
+  }));
 
   return {
     kpis,
@@ -333,98 +323,7 @@ function computeAggregates(
     byMarket,
     byPhase,
     pnlOverTime,
-    firmRankingBars: firmRankingBars.length ? firmRankingBars : fallbackFirmBars(),
+    firmRankingBars,
     eventsTimeline,
-  };
-}
-
-function fallbackPnlSeries() {
-  const arr: { t: string; date: string; pnl: number; equity: number }[] = [];
-  let pnl = 0;
-  let equity = 100_000;
-  const today = new Date();
-  for (let i = 39; i >= 0; i--) {
-    const d = new Date(today.getTime() - i * 86400_000);
-    const dStr = d.toISOString().slice(0, 10);
-    const dayDelta = (Math.random() - 0.42) * 1400;
-    pnl += dayDelta;
-    equity += dayDelta;
-    arr.push({ t: dStr.slice(5), date: dStr, pnl: +pnl.toFixed(2), equity: +equity.toFixed(2) });
-  }
-  return arr;
-}
-
-function fallbackFirmBars() {
-  return [
-    { firm: "FTMO", pnl: 8432, rate: 75 },
-    { firm: "Apex Trader Funding", pnl: 5420, rate: 66 },
-    { firm: "FundedNext", pnl: 4245, rate: 60 },
-    { firm: "Topstep", pnl: -580, rate: 33 },
-    { firm: "Bullfy", pnl: 4067, rate: 80 },
-    { firm: "FX Live Capital", pnl: 2110, rate: 50 },
-  ];
-}
-
-function fallbackEventsTimeline() {
-  const arr: { t: string; label: string; approved: number; failed: number; alerts: number }[] = [];
-  const today = new Date();
-  for (let i = 20; i >= 0; i--) {
-    const d = new Date(today.getTime() - i * 86400_000);
-    const dStr = d.toISOString().slice(0, 10);
-    arr.push({
-      t: dStr.slice(5),
-      label: dStr,
-      approved: Math.max(0, Math.round((Math.random() - 0.4) * 3)),
-      failed: Math.max(0, Math.round((Math.random() - 0.6) * 2)),
-      alerts: Math.max(0, Math.round((Math.random() - 0.5) * 4)),
-    });
-  }
-  return arr;
-}
-
-function mockAggregates(): AnalyticsAggregates {
-  const byFirm = fallbackFirmBars().map((f, i) => ({
-    firm_id: `mock_firm_${i}`,
-    firm_name: f.firm,
-    pnl: f.pnl,
-    challenges: 3 + i,
-    approved: 1 + Math.floor(i * 0.8),
-    rate: f.rate,
-  }));
-  const byMarket: AnalyticsAggregates["byMarket"] = [
-    { market: "forex", challenges: 13, pnl: 14200, pct: 18.5 },
-    { market: "futures", challenges: 5, pnl: 6100, pct: 12.2 },
-    { market: "crypto", challenges: 2, pnl: 1200, pct: 4.8 },
-    { market: "synthetic_indices", challenges: 1, pnl: 80, pct: 0.6 },
-  ];
-  const byPhase: AnalyticsAggregates["byPhase"] = [
-    { phase: "Fase 1", challenges: 7, approved: 5, rate: 71, avg_pnl_pct: 8.4 },
-    { phase: "Fase 2", challenges: 4, approved: 2, rate: 50, avg_pnl_pct: 5.6 },
-    { phase: "Live", challenges: 3, approved: 3, rate: 100, avg_pnl_pct: 12.2 },
-  ];
-
-  return {
-    kpis: {
-      total_challenges: 21,
-      approved: 12,
-      failed: 6,
-      approval_rate: 57,
-      total_pnl: 21584.33,
-      total_pnl_pct: 18.2,
-      avg_daily_dd: 2.1,
-      avg_max_dd: 4.1,
-      active_count: 9,
-      days_active: 134,
-      best_pnl: 8432.18,
-      worst_pnl: -2180.55,
-      total_volume_usd: 1_185_000,
-      events_count: 184,
-    },
-    byFirm,
-    byMarket,
-    byPhase,
-    pnlOverTime: fallbackPnlSeries(),
-    firmRankingBars: fallbackFirmBars(),
-    eventsTimeline: fallbackEventsTimeline(),
   };
 }

@@ -92,9 +92,8 @@ export default async function NotificationsPage() {
       system: enriched.filter((e) => KIND_FROM_TYPE[e.type] === "system").length,
     };
 
-    const fallback = buildMockNotifications();
-    const finalEvents: EnrichedEvent[] = enriched.length ? enriched : fallback;
-    const finalUnread = enriched.length ? unreadCount : fallback.filter((f) => !f.is_read).length;
+    const finalEvents: EnrichedEvent[] = enriched;
+    const finalUnread = unreadCount;
 
     return (
       <div className="p-6 md:p-10 max-w-5xl mx-auto space-y-8">
@@ -132,71 +131,4 @@ export default async function NotificationsPage() {
   } catch (e) {
     redirect("/login?next=/dashboard/notifications");
   }
-}
-
-function buildMockNotifications(): EnrichedEvent[] {
-  const now = Date.now();
-  const rows: Omit<EnrichedEvent, "challenge">[] = [
-    {
-      id: "m1",
-      challenge_id: "mock_ch_1",
-      type: "approved",
-      message: "Objetivo 10% alcanzado en 14 días. Ya puedes pasar a Fase 2.",
-      severity: "info",
-      is_read: false,
-      read_at: null,
-      created_at: new Date(now - 2 * 3600_000).toISOString(),
-    },
-    {
-      id: "m2",
-      challenge_id: "mock_ch_2",
-      type: "alert_daily_dd",
-      message: "FundedNext 25K · DD actual 4.1% / 5%. Reduce exposición.",
-      severity: "warning",
-      is_read: false,
-      read_at: null,
-      created_at: new Date(now - 6 * 3600_000).toISOString(),
-    },
-    {
-      id: "m3",
-      challenge_id: "mock_ch_1",
-      type: "reconnected",
-      message: "EA MT5 volvió a reportar tras 18 min sin señal.",
-      severity: "info",
-      is_read: true,
-      read_at: new Date(now - 10 * 3600_000).toISOString(),
-      created_at: new Date(now - 26 * 3600_000).toISOString(),
-    },
-    {
-      id: "m4",
-      challenge_id: "mock_ch_3",
-      type: "failed_daily_dd",
-      message: "Drawdown diario superado: 5.1% / 5%. Desafío cerrado automáticamente.",
-      severity: "critical",
-      is_read: true,
-      read_at: new Date(now - 30 * 3600_000).toISOString(),
-      created_at: new Date(now - 52 * 3600_000).toISOString(),
-    },
-    {
-      id: "m5",
-      challenge_id: "mock_ch_2",
-      type: "warning_best_day_ratio",
-      message: "El día de hoy representa el 42% del PnL total. Revisa consistencia.",
-      severity: "warning",
-      is_read: true,
-      read_at: new Date(now - 70 * 3600_000).toISOString(),
-      created_at: new Date(now - 96 * 3600_000).toISOString(),
-    },
-    {
-      id: "m6",
-      challenge_id: "mock_ch_1",
-      type: "phase_change",
-      message: "Apex 50K ha cambiado de Fase 1 a Fase 2 automáticamente.",
-      severity: "info",
-      is_read: true,
-      read_at: new Date(now - 170 * 3600_000).toISOString(),
-      created_at: new Date(now - 168 * 3600_000).toISOString(),
-    },
-  ];
-  return rows.map((r) => ({ ...r, challenge: null }));
 }

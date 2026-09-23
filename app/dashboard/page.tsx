@@ -51,7 +51,7 @@ async function getUserAndChallenges() {
     } catch {}
 
     if (challenges.length === 0) {
-      challenges = buildMockChallengesForUser(uid);
+      // Sin datos reales → dejar vacío (no inyectar mocks).
     }
 
     const counts = {
@@ -65,91 +65,6 @@ async function getUserAndChallenges() {
   } catch {
     return { user: null, challenges: [], counts: null as any };
   }
-}
-
-function buildMockChallengesForUser(userId: string) {
-  return [
-    {
-      id: "c-ftmo-100k",
-      user_id: userId,
-      firm_id: "firm-ftmo",
-      preset_id: "firm-ftmo-preset-100000",
-      market: "forex" as MarketType,
-      current_phase: 0,
-      status: "active" as ChallengeStatus,
-      initial_balance: 100000,
-      current_balance: 108432.55,
-      current_equity: 108432.55,
-      peak_equity: 109200,
-      total_pnl_pct: 8.43,
-      daily_drawdown_pct: 1.82,
-      max_drawdown_pct: 3.64,
-      trading_days_count: 14,
-      created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 22).toISOString(),
-      updated_at: new Date().toISOString(),
-      start_daily_balance: 0, daily_pnl: 0, total_pnl: 0,
-    },
-    {
-      id: "c-apex-50k",
-      user_id: userId,
-      firm_id: "firm-apex",
-      preset_id: "firm-apex-preset-50000",
-      market: "futuros" as MarketType,
-      current_phase: 1,
-      status: "active" as ChallengeStatus,
-      initial_balance: 50000,
-      current_balance: 52840,
-      current_equity: 52998,
-      peak_equity: 53100,
-      total_pnl_pct: 5.68,
-      daily_drawdown_pct: 0.42,
-      max_drawdown_pct: 2.01,
-      trading_days_count: 9,
-      created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 11).toISOString(),
-      updated_at: new Date().toISOString(),
-      start_daily_balance: 0, daily_pnl: 0, total_pnl: 0,
-    },
-    {
-      id: "c-fundednext-25k",
-      user_id: userId,
-      firm_id: "firm-fundednext",
-      preset_id: "firm-fundednext-preset-25000",
-      market: "forex" as MarketType,
-      current_phase: 0,
-      status: "approved" as ChallengeStatus,
-      initial_balance: 25000,
-      current_balance: 27540.21,
-      current_equity: 27540.21,
-      peak_equity: 27600,
-      total_pnl_pct: 10.16,
-      daily_drawdown_pct: 0,
-      max_drawdown_pct: 4.32,
-      trading_days_count: 12,
-      created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 40).toISOString(),
-      updated_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
-      start_daily_balance: 0, daily_pnl: 0, total_pnl: 0,
-    },
-    {
-      id: "c-topstep-10k",
-      user_id: userId,
-      firm_id: "firm-topstep",
-      preset_id: "firm-topstep-preset-10000",
-      market: "futuros" as MarketType,
-      current_phase: 0,
-      status: "failed" as ChallengeStatus,
-      initial_balance: 10000,
-      current_balance: 9420,
-      current_equity: 9420,
-      peak_equity: 10100,
-      total_pnl_pct: -5.8,
-      daily_drawdown_pct: 5.1,
-      max_drawdown_pct: 6.8,
-      trading_days_count: 3,
-      created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(),
-      updated_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 55).toISOString(),
-      start_daily_balance: 0, daily_pnl: 0, total_pnl: 0,
-    },
-  ];
 }
 
 export default async function DashboardHome() {
