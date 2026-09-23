@@ -193,120 +193,138 @@ export interface CreateChallengeResult {
   guest_signup_path?: string;
 }
 
+function hasAesKey(): boolean {
+  try {
+    const raw = process.env.WORKER_AES_MASTER_KEY ?? null;
+    if (raw && String(raw).trim()) return true;
+    if (process.env.NODE_ENV !== "production") return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 export async function createChallengeAction(
   input: CreateChallengeInput,
 ): Promise<CreateChallengeResult> {
-  const sb = await createClient();
+  try {
+    const sb = await createClient();
 
-  const parsed = CreateChallengeSchema.safeParse(input);
-  if (!parsed.success) {
-    const f = parsed.error.flatten().fieldErrors;
-    const valArr = Object.values(f) as (string[] | undefined)[];
-    const first = valArr.find((v) => v && v.length > 0)?.[0];
-    throw new Error(`Datos inválidos: ${first || "revisa los campos"}.`);
-  }
-  const p = parsed.data;
-
-  const preset = (await getPresetByIdLive(p.preset_id)) || getPresetById(p.preset_id);
-  if (!preset) {
-    throw new Error("Preset no encontrado. Refresca la página e inténtalo de nuevo.");
-  }
-  const firm = (await getFirmByIdLive(p.firm_id)) || getFirmById(p.firm_id);
-  if (!firm) {
-    throw new Error("Firma no encontrada.");
-  }
-  if (preset.firm_id !== p.firm_id) {
-    throw new Error("El preset no pertenece a esta firma.");
-  }
-  if (firm.market !== p.market) {
-    throw new Error("El mercado seleccionado no coincide con esta firma.");
-  }
-
-  if (p.link_method === "crypto_api") {
-    if (!p.exchange_id || !p.api_key || !p.api_secret) {
-      throw new Error("Para API cripto debes incluir exchange, key y secret.");
+    const parsed = CreateChallengeSchema.safeParse(input);
+    if (!parsed.success) {
+      const f = parsed.error.flatten().fieldErrors;
+      const valArr = Object.values(f) as (string[] | undefined)[];
+      const first = valArr.find((v) => v && v.length > 0)?.[0];
+      throw new Error(`Datos inválidos: ${first || "revisa los campos"}.`);
     }
-  }
+    const p = parsed.data;
 
-  const {
-    data: { user },
-  } = await sb.auth.getUser();
+    const preset = (await getPresetByIdLive(p.preset_id)) || getPresetById(p.preset_id);
+    if (!preset) {
+      throw new Error("Preset no encontrado. Refresca la página e inténtalo de nuevo.");
+    }
+    const firm = (await getFirmByIdLive(p.firm_id)) || getFirmById(p.firm_id);
+    if (!firm) {
+      throw new Error("Firma no encontrada.");
+    }
+    if (preset.firm_id !== p.firm_id) {
+      throw new Error("El preset no pertenece a esta firma.");
+    }
+    if (firm.market !== p.market) {
+      throw new Error("El mercado seleccionado no coincide con esta firma.");
+    }
 
-  // -------------
-  // Modo invitado: no hay sesión → retornar path de signup pre-rellenado
-  // -------------
-  if (!user) {
-    const params = new URLSearchParams({
-      next: `/dashboard/new?market=${encodeURIComponent(p.market)}&firm=${encodeURIComponent(p.firm_id)}&preset=${encodeURIComponent(p.preset_id)}&link=${encodeURIComponent(p.link_method)}`,
-      guest: "1",
-    });
-    const signupNext = `/signup?${params.toString()}`;
-    return {
-      challenge_id: null,
-      plain_report_key: null,
-      next_path: signupNext,
-      guest_mode: true,
-      guest_signup_path: signupNext,
+    if (p.link_method === "crypto_api") {
+      if (!p.exchange_id || !p.api_key || !p.api_secret) {
+        throw new Error("Para API cripto debes incluir exchange, key y secret.");
+      }
+      if (!hasAesKey()) {
+        throw new Error(
+          "Servicio no configurado (AES key). Contacta al administrador o usa EA/cBot en lugar de API cripto.",
+        );
+      }
+    }
+
+    const {
+      data: { user },
+    } = await sb.auth.getUser();
+
+    if (!user) {
+      const params = new URLSearchParams({
+        next: `/dashboard/new?market=${encodeURIComponent(p.market)}&firm=${encodeURIComponent(p.firm_id)}&preset=${encodeURIComponent(p.preset_id)}&link=${encodeURIComponent(p.link_method)}`,
+        guest: "1",
+      });
+      const signupNext = `/signup?${params.toString()}`;
+      return {
+        challenge_id: null,
+        plain_report_key: null,
+        next_path: signupNext,
+        guest_mode: true,
+        guest_signup_path: signupNext,
+      };
+    }
+
+    const balance = preset.initial_balance;
+    const status: ChallengeStatus = p.link_method === "crypto_api" ? "active" : "linking";
+    const now = new Date().toISOString();
+
+    let plainReportKey: string | null = null;
+    let reportKeyHash: string | null = null;
+    if (p.link_method !== "crypto_api") {
+      plainReportKey = generatePlainKey();
+      reportKeyHash = await bcrypt.hash(plainReportKey, 12);
+    }
+
+    const insert: Record<string, unknown> = {
+      user_id: user.id,
+      firm_id: p.firm_id,
+      preset_id: p.preset_id,
+      market: p.market as MarketType,
+      current_phase: 0,
+      status,
+      initial_balance: balance,
+      current_balance: balance,
+      current_equity: balance,
+      peak_equity: balance,
+      start_daily_balance: balance,
+      daily_pnl: 0,
+      total_pnl: 0,
+      total_pnl_pct: 0,
+      daily_drawdown_pct: 0,
+      max_drawdown_pct: 0,
+      trading_days_count: 0,
+      link_method: p.link_method,
+      report_key_hash: reportKeyHash,
+      crypto_exchange_id: p.link_method === "crypto_api" ? p.exchange_id! : null,
+      crypto_api_key_enc: p.link_method === "crypto_api" ? aesEncrypt(p.api_key!) : null,
+      crypto_api_secret_enc: p.link_method === "crypto_api" ? aesEncrypt(p.api_secret!) : null,
+      crypto_passphrase_enc:
+        p.link_method === "crypto_api" && p.passphrase ? aesEncrypt(p.passphrase) : null,
+      started_at: p.link_method === "crypto_api" ? now : null,
+      account_linked_at: p.link_method === "crypto_api" ? now : null,
     };
+
+    const { data: rows, error: insErr } = await sb
+      .from("challenges")
+      .insert([insert as any])
+      .select("id")
+      .single();
+
+    if (insErr || !rows) {
+      throw new Error(
+        `Error creando desafío en BD: ${insErr?.message || "sin respuesta"}.`,
+      );
+    }
+
+    return {
+      challenge_id: rows.id,
+      plain_report_key: plainReportKey,
+      next_path: `/dashboard/${rows.id}`,
+    };
+  } catch (e: any) {
+    const msg = e instanceof Error ? e.message : String(e || "Error desconocido");
+    throw new Error(msg);
   }
-
-  const balance = preset.initial_balance;
-  const status: ChallengeStatus = p.link_method === "crypto_api" ? "active" : "linking";
-  const now = new Date().toISOString();
-
-  let plainReportKey: string | null = null;
-  let reportKeyHash: string | null = null;
-  if (p.link_method !== "crypto_api") {
-    plainReportKey = generatePlainKey();
-    reportKeyHash = await bcrypt.hash(plainReportKey, 12);
-  }
-
-  const insert: Record<string, unknown> = {
-    user_id: user.id,
-    firm_id: p.firm_id,
-    preset_id: p.preset_id,
-    market: p.market as MarketType,
-    current_phase: 0,
-    status,
-    initial_balance: balance,
-    current_balance: balance,
-    current_equity: balance,
-    peak_equity: balance,
-    start_daily_balance: balance,
-    daily_pnl: 0,
-    total_pnl: 0,
-    total_pnl_pct: 0,
-    daily_drawdown_pct: 0,
-    max_drawdown_pct: 0,
-    trading_days_count: 0,
-    link_method: p.link_method,
-    report_key_hash: reportKeyHash,
-    crypto_exchange_id: p.link_method === "crypto_api" ? p.exchange_id! : null,
-    crypto_api_key_enc: p.link_method === "crypto_api" ? aesEncrypt(p.api_key!) : null,
-    crypto_api_secret_enc: p.link_method === "crypto_api" ? aesEncrypt(p.api_secret!) : null,
-    crypto_passphrase_enc:
-      p.link_method === "crypto_api" && p.passphrase ? aesEncrypt(p.passphrase) : null,
-    started_at: p.link_method === "crypto_api" ? now : null,
-    account_linked_at: p.link_method === "crypto_api" ? now : null,
-  };
-
-  const { data: rows, error: insErr } = await sb
-    .from("challenges")
-    .insert([insert as any])
-    .select("id")
-    .single();
-
-  if (insErr || !rows) {
-    throw new Error(
-      `Error creando desafío en BD: ${insErr?.message || "sin respuesta"}.`,
-    );
-  }
-
-  return {
-    challenge_id: rows.id,
-    plain_report_key: plainReportKey,
-    next_path: `/dashboard/${rows.id}`,
-  };
 }
 
 const UpdateProfileSchema = z.object({

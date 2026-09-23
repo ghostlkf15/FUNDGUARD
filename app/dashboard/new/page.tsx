@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Suspense } from "react";
+import { Suspense, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -86,7 +86,8 @@ function NewChallengeWizardInner() {
   const [exchangeId, setExchangeId] = React.useState("");
   const [apiKey, setApiKey] = React.useState("");
   const [apiSecret, setApiSecret] = React.useState("");
-  const [creating, setCreating] = React.useState(false);
+  const [isCreating, startCreating] = useTransition();
+  const creatingLockedRef = React.useRef(false);
   const [copied, setCopied] = React.useState(false);
   const [created, setCreated] = React.useState<CreateChallengeResult | null>(null);
   const [keyRevealed, setKeyRevealed] = React.useState(false);
@@ -149,42 +150,48 @@ function NewChallengeWizardInner() {
     return market && firm && preset && linkMethod && (linkMethod !== "crypto_api" || (exchangeId && apiKey && apiSecret));
   }
 
-  async function createChallenge() {
+  function createChallenge() {
     if (!canCreate() || !firm || !preset || !market) return;
-    setCreating(true);
-    try {
-      const res = await createChallengeAction({
-        market,
-        firm_id: firm.id,
-        preset_id: preset.id,
-        link_method: linkMethod!,
-        exchange_id: linkMethod === "crypto_api" ? exchangeId || undefined : undefined,
-        api_key: linkMethod === "crypto_api" ? apiKey || undefined : undefined,
-        api_secret: linkMethod === "crypto_api" ? apiSecret || undefined : undefined,
-      });
+    if (creatingLockedRef.current || isCreating) return;
+    creatingLockedRef.current = true;
 
-      // Modo invitado → redirigir a signup con prefill
-      if (res.guest_mode && res.guest_signup_path) {
-        const signupPath = res.guest_signup_path;
-        toast.warning("Regístrate para guardar tu desafío", {
-          description: "Sin tarjeta · Sin KYC · 30 segundos",
-          action: {
-            label: "Crear cuenta",
-            onClick: () => router.push(signupPath),
-          },
-        });
-        setTimeout(() => router.push(signupPath), 450);
-        return;
+    const input = {
+      market: market!,
+      firm_id: firm!.id,
+      preset_id: preset!.id,
+      link_method: linkMethod!,
+      exchange_id: linkMethod === "crypto_api" ? exchangeId || undefined : undefined,
+      api_key: linkMethod === "crypto_api" ? apiKey || undefined : undefined,
+      api_secret: linkMethod === "crypto_api" ? apiSecret || undefined : undefined,
+    };
+
+    startCreating(async () => {
+      try {
+        const res = await createChallengeAction(input);
+
+        if (res.guest_mode && res.guest_signup_path) {
+          const signupPath = res.guest_signup_path;
+          toast.warning("Regístrate para guardar tu desafío", {
+            description: "Sin tarjeta · Sin KYC · 30 segundos",
+            action: {
+              label: "Crear cuenta",
+              onClick: () => router.push(signupPath),
+            },
+          });
+          setTimeout(() => router.push(signupPath), 450);
+          return;
+        }
+
+        setCreated(res);
+        setKeyRevealed(false);
+        toast.success("Desafío creado. Muestra y guarda tu clave de reporte.");
+      } catch (e: any) {
+        const msg = e?.message || "Error creando desafío";
+        toast.error(msg);
+      } finally {
+        creatingLockedRef.current = false;
       }
-
-      setCreated(res);
-      setKeyRevealed(false);
-      toast.success("Desafío creado. Muestra y guarda tu clave de reporte.");
-    } catch (e: any) {
-      toast.error(e?.message || "Error creando desafío");
-    } finally {
-      setCreating(false);
-    }
+    });
   }
 
   async function copyKey(key: string) {
@@ -698,11 +705,11 @@ function NewChallengeWizardInner() {
           ) : (
             <button
               type="button"
-              disabled={!canCreate() || creating}
+              disabled={!canCreate() || isCreating}
               onClick={createChallenge}
               className={cn("btn-gold text-sm", !canCreate() && "opacity-60 cursor-not-allowed")}
             >
-              {creating ? <><Loader2 className="w-4 h-4 animate-spin" /> Creando…</> : <>Crear desafío <CheckCircle2 className="w-4 h-4" /></>}
+              {isCreating ? <><Loader2 className="w-4 h-4 animate-spin" /> Creando…</> : <>Crear desafío <CheckCircle2 className="w-4 h-4" /></>}
             </button>
           )}
         </div>

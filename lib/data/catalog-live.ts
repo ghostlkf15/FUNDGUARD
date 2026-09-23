@@ -16,7 +16,7 @@ let _liveCache: {
 const TTL_MS = 60 * 1000;
 
 function validFirm(x: any): Firm | null {
-  if (!x?.id || !x?.name || !x?.slug || !x.market || typeof x.is_active === "boolean") return null;
+  if (!x?.id || !x?.name || !x?.slug || !x?.market || typeof x.is_active !== "boolean") return null;
   return x as Firm;
 }
 function validPreset(x: any): FirmPreset | null {
