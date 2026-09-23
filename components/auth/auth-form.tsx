@@ -19,19 +19,19 @@ function AuthFormInner({ mode, next }: { mode: "login" | "signup"; next?: string
   const [showPw, setShowPw] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
+  const [prefillApplied, setPrefillApplied] = React.useState(false);
   React.useEffect(() => {
-    const p = params.get("next");
-    const m = params.get("market");
-    const f = params.get("firm");
-    const pr = params.get("preset");
-    const l = params.get("link");
+    if (prefillApplied) return;
     const emailPrefill = params.get("email") || "";
     if (emailPrefill) setEmail(emailPrefill);
-    if (mode === "signup" && !emailPrefill) {
-      // sin-op: si viniera prefill, ya lo cargamos
-    }
-    void p; void m; void f; void pr; void l;
-  }, [params, mode]);
+    void params.get("next");
+    void params.get("market");
+    void params.get("firm");
+    void params.get("preset");
+    void params.get("link");
+    setPrefillApplied(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefillApplied, mode]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import Link from "next/link";
 import {
   LayoutDashboard,
@@ -50,8 +51,13 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getUser();
-  if (!user) redirect("/login?next=/dashboard");
+  try {
+    const user = await getUser();
+    if (!user) {
+      const headersList = await headers();
+      const pathname = headersList.get("x-pathname") || "/dashboard";
+      redirect(`/login?next=${encodeURIComponent(pathname)}`);
+    }
 
   const navItems = [
     { href: "/dashboard", label: "Mis desafíos", icon: LayoutDashboard },
@@ -178,4 +184,7 @@ export default async function DashboardLayout({
       </main>
     </div>
   );
+} catch {
+  redirect("/login?next=/dashboard");
+}
 }

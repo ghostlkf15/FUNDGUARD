@@ -91,6 +91,8 @@ function NewChallengeWizardInner() {
   const [created, setCreated] = React.useState<CreateChallengeResult | null>(null);
   const [keyRevealed, setKeyRevealed] = React.useState(false);
 
+  const [guestSignupHref, setGuestSignupHref] = React.useState<string>("/signup?guest=1");
+
   const [paramsApplied, setParamsApplied] = React.useState(false);
   React.useEffect(() => {
     if (paramsApplied) return;
@@ -119,9 +121,12 @@ function NewChallengeWizardInner() {
         setStep(1);
       }
     }
+    const qs = params.toString();
+    const nextPath = qs ? `/dashboard/new?${qs}` : "/dashboard/new";
+    setGuestSignupHref(`/signup?next=${encodeURIComponent(nextPath)}&guest=1`);
     setParamsApplied(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, paramsApplied]);
+  }, [paramsApplied]);
 
   const markets: { id: MarketType; label: string; icon: any; desc: string; badge?: string }[] = [
     { id: "forex", label: "Forex", icon: Landmark, desc: "MT4 / MT5 · EA propio en MQL", badge: "7 firmas" },
@@ -245,7 +250,7 @@ function NewChallengeWizardInner() {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <Link
-                href={`/signup?next=${encodeURIComponent(`/dashboard/new${params.toString() ? "?" + params.toString() : ""}`)}&guest=1`}
+                href={guestSignupHref}
                 className="btn-gold px-5 py-2.5 inline-flex items-center gap-2"
               >
                 <User className="w-4 h-4" />
