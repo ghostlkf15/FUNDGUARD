@@ -1,13 +1,14 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "@/lib/ui/lucide-polyfill";
 
-export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: string }) {
+function AuthFormInner({ mode, next }: { mode: "login" | "signup"; next?: string }) {
   const router = useRouter();
   const params = useSearchParams();
   const sb = React.useMemo(() => createClient(), []);
@@ -17,6 +18,20 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
   const [name, setName] = React.useState("");
   const [showPw, setShowPw] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    const p = params.get("next");
+    const m = params.get("market");
+    const f = params.get("firm");
+    const pr = params.get("preset");
+    const l = params.get("link");
+    const emailPrefill = params.get("email") || "";
+    if (emailPrefill) setEmail(emailPrefill);
+    if (mode === "signup" && !emailPrefill) {
+      // sin-op: si viniera prefill, ya lo cargamos
+    }
+    void p; void m; void f; void pr; void l;
+  }, [params, mode]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -140,6 +155,18 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
 
       <GoogleOAuthButton mode={mode} />
     </form>
+  );
+}
+
+export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: string }) {
+  return (
+    <Suspense fallback={
+      <div className="space-y-4 min-h-[320px] flex items-center justify-center">
+        <div className="text-muted-foreground text-sm">Cargando formulario…</div>
+      </div>
+    }>
+      <AuthFormInner mode={mode} next={next} />
+    </Suspense>
   );
 }
 

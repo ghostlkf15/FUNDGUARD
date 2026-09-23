@@ -78,16 +78,9 @@ function NewChallengeWizardInner() {
     })();
   }, [sb]);
 
-  const [step, setStep] = React.useState<number>(() => {
-    if (params.get("market")) return 1;
-    return 0;
-  });
-  const [market, setMarket] = React.useState<MarketType | null>(
-    () => (params.get("market") as MarketType) || null
-  );
-  const [firm, setFirm] = React.useState<Firm | null>(
-    () => DEFAULT_FIRMS.find((f) => f.id === params.get("firm")) || null
-  );
+  const [step, setStep] = React.useState<number>(0);
+  const [market, setMarket] = React.useState<MarketType | null>(null);
+  const [firm, setFirm] = React.useState<Firm | null>(null);
   const [preset, setPreset] = React.useState<FirmPreset | null>(null);
   const [linkMethod, setLinkMethod] = React.useState<AccountLinkMethod | null>(null);
   const [exchangeId, setExchangeId] = React.useState("");
@@ -97,6 +90,38 @@ function NewChallengeWizardInner() {
   const [copied, setCopied] = React.useState(false);
   const [created, setCreated] = React.useState<CreateChallengeResult | null>(null);
   const [keyRevealed, setKeyRevealed] = React.useState(false);
+
+  const [paramsApplied, setParamsApplied] = React.useState(false);
+  React.useEffect(() => {
+    if (paramsApplied) return;
+    const m = params.get("market") as MarketType | null;
+    const f = params.get("firm");
+    const l = params.get("link") as AccountLinkMethod | null;
+    const p = params.get("preset");
+    if (m) setMarket(m);
+    const foundFirm = f ? DEFAULT_FIRMS.find((x) => x.id === f) || null : null;
+    if (foundFirm) setFirm(foundFirm);
+    if (l) setLinkMethod(l);
+    let foundPreset: FirmPreset | null = null;
+    if (p && foundFirm) {
+      const presetList = getPresetsByFirm(foundFirm.id);
+      foundPreset = presetList.find((pp) => pp.id === p) || null;
+      if (foundPreset) setPreset(foundPreset);
+    }
+    if (m) {
+      if (foundPreset && l) {
+        setStep(3);
+      } else if (foundPreset || (foundFirm && p)) {
+        setStep(2);
+      } else if (foundFirm) {
+        setStep(1);
+      } else {
+        setStep(1);
+      }
+    }
+    setParamsApplied(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, paramsApplied]);
 
   const markets: { id: MarketType; label: string; icon: any; desc: string; badge?: string }[] = [
     { id: "forex", label: "Forex", icon: Landmark, desc: "MT4 / MT5 · EA propio en MQL", badge: "7 firmas" },
@@ -135,15 +160,15 @@ function NewChallengeWizardInner() {
 
       // Modo invitado → redirigir a signup con prefill
       if (res.guest_mode && res.guest_signup_path) {
+        const signupPath = res.guest_signup_path;
         toast.warning("Regístrate para guardar tu desafío", {
           description: "Sin tarjeta · Sin KYC · 30 segundos",
-          icon: <User className="w-4 h-4" />,
           action: {
             label: "Crear cuenta",
-            onClick: () => router.push(res.guest_signup_path!),
+            onClick: () => router.push(signupPath),
           },
         });
-        setTimeout(() => router.push(res.guest_signup_path!), 450);
+        setTimeout(() => router.push(signupPath), 450);
         return;
       }
 
