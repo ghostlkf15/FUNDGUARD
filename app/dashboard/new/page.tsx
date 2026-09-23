@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -43,7 +44,21 @@ const STEPS = [
   { id: 3, title: "Vincular cuenta", icon: Link2, desc: "EA / cBot o API key" },
 ];
 
-export default function NewChallengeWizardPage() {
+const EA_DOWNLOAD_MAP: Record<AccountLinkMethod, { file: string; label: string }[]> = {
+  ea_mt5: [
+    { file: "/ea/FundGuard_EA.ex5", label: "EA MT5 · Compilado (.ex5)" },
+    { file: "/ea/FundGuard_EA.mq5", label: "EA MT5 · Código fuente (.mq5)" },
+  ],
+  ea_mt4: [
+    { file: "/ea/FundGuard_EA_MT4.mq4", label: "EA MT4 · Código fuente (.mq4)" },
+  ],
+  cbot_ctrader: [
+    { file: "/ea/FundGuard_cBot.cs", label: "cBot cTrader · Código fuente (.cs)" },
+  ],
+  crypto_api: [],
+};
+
+function NewChallengeWizardInner() {
   const router = useRouter();
   const params = useSearchParams();
   const sb = React.useMemo(() => createSupabaseClient(), []);
@@ -152,20 +167,6 @@ export default function NewChallengeWizardPage() {
       toast.error("No se pudo copiar");
     }
   }
-
-  const EA_DOWNLOAD_MAP: Record<AccountLinkMethod, { file: string; label: string }[]> = {
-    ea_mt5: [
-      { file: "/ea/FundGuard_EA.ex5", label: "EA MT5 · Compilado (.ex5)" },
-      { file: "/ea/FundGuard_EA.mq5", label: "EA MT5 · Código fuente (.mq5)" },
-    ],
-    ea_mt4: [
-      { file: "/ea/FundGuard_EA_MT4.mq4", label: "EA MT4 · Código fuente (.mq4)" },
-    ],
-    cbot_ctrader: [
-      { file: "/ea/FundGuard_cBot.cs", label: "cBot cTrader · Código fuente (.cs)" },
-    ],
-    crypto_api: [],
-  };
 
   function triggerDownload(filePath: string, label: string) {
     try {
@@ -817,6 +818,18 @@ export default function NewChallengeWizardPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function NewChallengeWizardPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-6 md:p-10 max-w-6xl mx-auto min-h-[60vh] flex items-center justify-center">
+        <div className="text-muted-foreground text-sm">Cargando…</div>
+      </div>
+    }>
+      <NewChallengeWizardInner />
+    </Suspense>
   );
 }
 
